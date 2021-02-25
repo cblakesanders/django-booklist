@@ -14,14 +14,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.contrib.auth import views as auth_views
 
 from django.conf import settings
 from django.conf.urls.static import static
 
 from booklist.views import *
-from users.views import register_view, update_profile_view, profile_view
+from users.views import register_view, update_profile_view, profile_view, update_relationship_view
+
+from rest_framework.routers import DefaultRouter
+
+# router = DefaultRouter()
+# router.register(r'update-relationship', update_relationship_view)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,7 +37,8 @@ urlpatterns = [
     path('update-profile/', update_profile_view, name='update-profile'),
     path('profile/<str:username>/', profile_view.as_view(), name='profile'),
     path('book/<int:pk>/', BookDetailView.as_view(), name='book-detail'),
-    path('', hopepage_view, name='home')
+    path('', hopepage_view, name='home'), 
+    path('api/', update_relationship_view)
 ] 
 
 if settings.DEBUG: 
