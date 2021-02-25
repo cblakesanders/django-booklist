@@ -1,0 +1,96 @@
+{% extends 'booklist/base.html'%}
+{% load custom_template_tag %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+    <div class="content-section">
+        <div class="media">
+            <img class="rounded-circle mr-3" style="width:50px" src="{{ user.profile.image.url }}" alt="" />
+            <div class="media-body">
+
+                <h2 class="account-heading"> {{ profile.username }} </h2>
+                <p class="text-muted">Followers {{ followers }}  Following {{ following }}</p>
+            </div>
+            {% if user.is_authenticated and user.get_username != profile.username%}
+
+            
+            
+            <div id="app">
+                <form class="media-right media-middle" v-on:submit.prevent='change_button'>
+                    {% csrf_token %}
+                    <button class="btn btn-info" id="follow-btn">Follow</button>
+                </form>
+
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="content-section mt-5">
+        {% get_books user.profile as books%}
+        <div class="container">
+            <div class="row">
+                <div class="col-lg">
+                <h2 class="text-center mb-5 border-bottom">Your Books</h2>
+                {% for book in books%}
+                <div class="media ">
+                    <div class="media-left media-middle mb-3" >
+                        <img src="{{ user.profile.image.url }}" alt="" class="media-object" style="width: 100px; height: 100px;">
+                    </div>
+                    <div class="media-body ml-5">
+                        <h4><br>{{ book.title|title }}</br></h4>
+                        <p>{{ book.author }}</p>
+                        
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+
+                
+                <div class="col-lg">
+                    <h2 class="text-center mb-5 border-bottom">Your Lists</h2>
+                    {% for book in books%}
+                    <div class="media ml-5">
+                        <div class="media-body ml-5">
+                            <a href="#"><h4><br>List example</br></h4></a>
+                            <p>summary</p>
+                            
+                        </div>
+                    </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>                     
+    </div>
+    <script>
+        
+        new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app', 
+            data: {
+                followerUser: '{{ user }}',
+                followingUser: '{{ profile.username }}',
+            },
+            methods: {
+                change_button: function () {
+                    const button = document.getElementById('follow-btn');
+                    axios.defaults.xsrfCookieName = 'csrftoken'
+                    axios.defaults.xsrfHeaderName = 'X-CSRFToken'
+
+                    const options = {
+                        headers: {'Content-type': 'application/json; charset=UTF-8'}
+                    }
+
+                    if (button.textContent == 'Follow'){
+                        button.textContent = 'Unfollow';    
+                        axios.post('/api/', {'followingUser': this.followingUser, 'followerUser': this.followerUser}, options).then(res=>console.log(res))
+                        .catch(err=>console.log('Response body', err.response.data)
+)}
+                    else if (button.textContent == 'Unfollow') {
+                        button.textContent = 'Follow';
+                    }
+                }
+            }
+        })
+    </script>
+{% endblock content %}
